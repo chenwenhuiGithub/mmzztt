@@ -9,9 +9,14 @@ from selenium.webdriver.common.by import By
 
 
 class mmzztt():
-    def __init__(self, driver):
-        self.driver = driver
-        self.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188'} # edge://version
+    def __init__(self):
+        opt = Options()
+        opt.add_argument('--headless')
+        opt.add_argument('--disable-gpu')
+        opt.add_argument('log-level=3')
+        opt.add_argument('user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188"') # edge://version
+        svc = Service(executable_path=r'D:\software_package\\msedgedriver.exe')
+        self.driver = webdriver.Edge(options=opt, service=svc)
         self.urlHome = 'https://mmzztt.com/'
 
     def __makeDir(self, path):
@@ -48,17 +53,13 @@ class mmzztt():
                 urlImage = elem.get_attribute('href')
                 print('urlImage:%s' %(urlImage))
 
+    def close(self):
+        self.driver.quit()
 
 
 # python mmzztt.py 1 3
-if __name__ == '__main__':
-    opt = Options()
-    # opt.add_argument('--headless')
-    opt.add_argument('--disable-gpu')
-    opt.add_argument('log-level=3')
-    svc = Service(executable_path=r'D:\software_package\\msedgedriver.exe')
-    driver = webdriver.Edge(options=opt, service=svc)
-    mzt = mmzztt(driver)
+if __name__ == '__main__':    
+    mzt = mmzztt()
     mzt.downloadImages(int(sys.argv[1]), int(sys.argv[2]))
-    driver.quit()
+    mzt.close()
     print('download complete')
