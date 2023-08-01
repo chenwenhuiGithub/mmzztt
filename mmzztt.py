@@ -17,30 +17,28 @@ class mmzztt():
         svc = Service(executable_path=r'D:\software_package\\msedgedriver.exe')
         self.driver = webdriver.Edge(options=opt, service=svc)
 
-    def __makeDir(self, path):
-        isExist = os.path.exists(path)
-        if not isExist:
-            os.makedirs(path)
-
     def downloadImages(self, pageStart, pageEnd):
         print('pageStart:%d, pageEnd:%d' %(pageStart, pageEnd))
-        dateString = datetime.datetime.now().strftime('%Y%m%d')
-        savedDir = 'images/' + dateString
-        print(savedDir)
-        self.__makeDir(savedDir)
-        os.chdir(savedDir)
+        imageDir = datetime.datetime.now().strftime('images/%Y%m%d')
+        print(imageDir)
+        if not os.path.exists(imageDir):
+            os.makedirs(imageDir)
 
         for index in range(pageStart, pageEnd + 1):
-            urlPage = 'https://mmzztt.com/photo/page/' + str(index)
-            print(urlPage)
-            self.driver.implicitly_wait(3)
-            self.driver.get(urlPage)
+            pageUrl = 'https://mmzztt.com/photo/page/' + str(index)
+            print(pageUrl)
+            self.driver.implicitly_wait(3) # 3s
+            self.driver.get(pageUrl)
             elemList = self.driver.find_elements(By.XPATH, "//div[@class='uk-card-media-top']/a")
             for elem in elemList:
-                urlImage = elem.get_attribute('href')
-                filename = urlImage[urlImage.rfind('/')+1:] + '.png'
-                elem.screenshot(filename)
-                print(urlImage + ' save success')
+                imageUrl = elem.get_attribute('href')
+                imageFilename = imageUrl[imageUrl.rfind('/')+1:] + '.png'               
+                filenames = os.listdir(imageDir)
+                if imageFilename not in filenames:
+                    elem.screenshot(imageDir + '/' + imageFilename)
+                    print(imageUrl + ' save success')
+                else:
+                    print(imageUrl + ' already exist')
 
     def close(self):
         self.driver.quit()
