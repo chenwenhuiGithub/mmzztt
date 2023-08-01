@@ -4,6 +4,7 @@ import datetime
 import requests
 from selenium import webdriver
 from selenium.webdriver.edge.options import Options
+from selenium.webdriver.common.by import By
 
 
 class mmzztt():
@@ -19,7 +20,7 @@ class mmzztt():
 
     def __saveImage(self, url):
         try:
-            filename = url[url.rfind('/')+1:] # *.jpg
+            filename = url[url.rfind('/')+1:] + '.jgp'
             img = requests.get(url, headers=self.headers)
             f = open(filename, 'wb')
             f.write(img.content)
@@ -28,19 +29,28 @@ class mmzztt():
         except:
             print("saved image failed, %s" %(url))
 
-    def downloadImages(self, pageStart, pageNum):
-        print('pageStart:%d, pageNum:%d' %(pageStart, pageNum))
+    def downloadImages(self, pageStart, pageEnd):
+        print('pageStart:%d, pageEnd:%d' %(pageStart, pageEnd))
 
         dateString = datetime.datetime.now().strftime('%Y%m%d')
         savedDir = 'images/' + dateString
         self.__makeDir(savedDir)
         os.chdir(savedDir)
+        
+        for index in range(pageStart, pageEnd + 1):
+            urlPage = self.urlHome + 'photo/page/' + str(index)
+            self.driver.implicitly_wait(5)
+            self.driver.get(urlPage)
+            elemList = self.driver.find_elements(By.XPATH, "//div[@class='uk-card-media-top']/a")
+            for elem in elemList:
+                urlImage = elem.get_attribute('href')
+                print(urlImage)
 
 
 # python mmzztt.py 1 3
 if __name__ == '__main__':
     opt = Options()
-    opt.add_argument('--headless')
+    # opt.add_argument('--headless')
     opt.add_argument('--disable-gpu')
     opt.add_argument('log-level=3')
     # opt.binary_location = r"D:\software_package\\msedgedriver.exe"
