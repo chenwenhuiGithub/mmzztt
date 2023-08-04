@@ -32,13 +32,14 @@ class mmzztt():
             elemList = self.driver.find_elements(By.XPATH, "//div[@class='uk-card-media-top']/a")
             for elem in elemList:
                 imageUrl = elem.get_attribute('href')
-                imageFilename = imageUrl[imageUrl.rfind('/')+1:] + '.png'               
-                filenames = os.listdir(imageDir)
-                if imageFilename not in filenames:
-                    elem.screenshot(imageDir + '/' + imageFilename)
-                    print(imageUrl + ' save success')
-                else:
-                    print(imageUrl + ' already exist')
+                if imageUrl[-1] != '/':
+                    imageFilename = imageUrl[imageUrl.rfind('/')+1:] + '.png'
+                    filenames = os.listdir(imageDir)
+                    if imageFilename not in filenames:
+                        elem.screenshot(imageDir + '/' + imageFilename)
+                        print(imageUrl + ' save success')
+                    else:
+                        print(imageUrl + ' already exist')
 
     def close(self):
         self.driver.quit()
