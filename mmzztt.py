@@ -19,27 +19,35 @@ class mmzztt():
 
     def downloadImages(self, pageStart, pageEnd):
         print('pageStart:%d, pageEnd:%d' %(pageStart, pageEnd))
-        imageDir = datetime.datetime.now().strftime('images/%Y%m%d')
-        print(imageDir)
-        if not os.path.exists(imageDir):
-            os.makedirs(imageDir)
+        saveDir = datetime.datetime.now().strftime('images/%Y%m%d')
+        print(saveDir)
+        if not os.path.exists(saveDir):
+            os.makedirs(saveDir)
 
         for index in range(pageStart, pageEnd + 1):
             pageUrl = 'https://mmzztt.com/photo/page/' + str(index)
             print(pageUrl)
+            urlList = []
             self.driver.implicitly_wait(3) # 3s
             self.driver.get(pageUrl)
-            elemList = self.driver.find_elements(By.XPATH, "//div[@class='uk-card-media-top']/a")
-            for elem in elemList:
-                imageUrl = elem.get_attribute('href')
-                if imageUrl[-1] != '/':
-                    imageFilename = imageUrl[imageUrl.rfind('/')+1:] + '.png'
-                    filenames = os.listdir(imageDir)
-                    if imageFilename not in filenames:
-                        elem.screenshot(imageDir + '/' + imageFilename)
-                        print(imageUrl + ' save success')
-                    else:
-                        print(imageUrl + ' already exist')
+            imgList = self.driver.find_elements(By.XPATH, "//div[@class='uk-card-media-top']/a/img")
+            for imgElement in imgList:
+                imgUrl = imgElement.get_attribute('data-srcset') # https://s.iimzt.com/thumb/93029/960.jpg
+                if imgUrl:
+                    urlList.append(imgUrl)
+                    print(imgUrl)
+
+            for url in urlList:
+                imgFilename = url[26:31] + '.png'
+                imgFilenames = os.listdir(saveDir)
+                if imgFilename not in imgFilenames:
+                    self.driver.implicitly_wait(3) # 3s
+                    self.driver.get(url)
+                    self.driver.find_element(By.XPATH, '//body/img[1]').screenshot(saveDir + '/' + imgFilename)
+                    print(imgFilename + ' save success')
+                    # return
+                else:
+                    print(imgFilename + ' already exist')
 
     def close(self):
         self.driver.quit()
